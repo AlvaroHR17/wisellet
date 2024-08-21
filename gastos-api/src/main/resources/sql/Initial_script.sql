@@ -2,85 +2,85 @@
 -- INITIAL SQL SCRIPT
 --
 
-CREATE DATABASE EXPENSE;
+create database expense;
 
-CREATE TABLE USERS (
-    ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-   	USERNAME VARCHAR(255) NOT NULL,
-   	PASSWORD VARCHAR(500) NOT NULL,
-   	EMAIL VARCHAR(255),
-    PRIMARY KEY(ID)
+create table users (
+    id bigint unsigned auto_increment not null,
+   	username varchar(255) not null,
+   	password varchar(500) not null,
+   	email varchar(255),
+    primary key(id)
 );
 
-CREATE TABLE TRANSACTIONS (
-    ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-    USER_ID BIGINT UNSIGNED NOT NULL,
-    CREATION_DATE TIMESTAMP NOT NULL,
-    AMOUNT FLOAT NOT NULL,
-    PRIMARY KEY(ID)
+create table transactions (
+    id bigint unsigned auto_increment not null,
+    user_id bigint unsigned not null,
+    creation_date timestamp not null,
+    amount float not null,
+    primary key(id)
 );
 
-ALTER TABLE TRANSACTIONS ADD FOREIGN KEY (USER_ID) REFERENCES USERS(ID);
+alter table transactions add foreign key (user_id) references users(id);
 
 
 
 
-CREATE TABLE INCOME_TYPES (
-	ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	DESCRIPTION VARCHAR(255) NOT NULL,
-	USER_ID BIGINT UNSIGNED NOT NULL,
-	PRIMARY KEY(ID)
+create table income_types (
+	id bigint unsigned auto_increment not null,
+	description varchar(255) not null,
+	user_id bigint unsigned not null,
+	primary key(id)
 );
 
-ALTER TABLE INCOME_TYPES ADD FOREIGN KEY (USER_ID) REFERENCES USERS(ID);
+alter table income_types add foreign key (user_id) references users(id);
 
-CREATE TABLE INCOMES (
-	ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	INCOME_TYPE_ID BIGINT UNSIGNED NOT NULL,
-	PRIMARY KEY(ID)
+create table incomes (
+	id bigint unsigned auto_increment not null,
+	income_type_id bigint unsigned not null,
+	primary key(id)
 );
 
-ALTER TABLE EXPENSE.INCOMES ADD CONSTRAINT INCOMES_TRANSACTIONS_FK FOREIGN KEY (ID) REFERENCES EXPENSE.TRANSACTIONS(ID);
-ALTER TABLE INCOMES ADD FOREIGN KEY (INCOME_TYPE_ID) REFERENCES INCOME_TYPES(ID);
+alter table incomes add constraint incomes_transactions_fk foreign key (id) references transactions(id);
+alter table incomes add foreign key (income_type_id) references income_types(id);
 
 
 
 
-CREATE TABLE FIXED_EXPENSE_TYPES (
-	ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	DESCRIPTION VARCHAR(255) NOT NULL,
-	USER_ID BIGINT UNSIGNED NOT NULL,
-	PRIMARY KEY(ID)
+create table fixed_expense_types (
+	id bigint unsigned auto_increment not null,
+	description varchar(255) not null,
+	user_id bigint unsigned not null,
+	primary key(id)
 );
 
-ALTER TABLE FIXED_EXPENSE_TYPES ADD FOREIGN KEY (USER_ID) REFERENCES USERS(ID);
+alter table fixed_expense_types add foreign key (user_id) references users(id);
 
-CREATE TABLE FIXED_EXPENSES (
-	ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	FIXED_EXPENSES_TYPE_ID BIGINT UNSIGNED NOT NULL,
-	PRIMARY KEY(ID)
+create table fixed_expenses (
+	id bigint unsigned auto_increment not null,
+	fixed_expenses_type_id bigint unsigned not null,
+	primary key(id)
 );
 
-ALTER TABLE EXPENSE.FIXED_EXPENSES ADD CONSTRAINT FIXED_EXPENSES_TRANSACTIONS_FK FOREIGN KEY (ID) REFERENCES EXPENSE.TRANSACTIONS(ID);
-ALTER TABLE FIXED_EXPENSES ADD FOREIGN KEY (FIXED_EXPENSES_TYPE_ID) REFERENCES FIXED_EXPENSE_TYPES(ID);
+alter table fixed_expenses add constraint fixed_expenses_transactions_fk foreign key (id) references transactions(id);
+alter table fixed_expenses add foreign key (fixed_expenses_type_id) references fixed_expense_types(id);
 
 
 
 
-CREATE TABLE VARIABLE_EXPENSE_TYPES (
-	ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	DESCRIPTION VARCHAR(255) NOT NULL,
-	USER_ID BIGINT UNSIGNED NOT NULL,
-	PRIMARY KEY(ID)
+create table variable_expense_types (
+	id bigint unsigned auto_increment not null,
+	description varchar(255) not null,
+	user_id bigint unsigned not null,
+	primary key(id)
 );
 
-ALTER TABLE VARIABLE_EXPENSE_TYPES ADD FOREIGN KEY (USER_ID) REFERENCES USERS(ID);
+alter table variable_expense_types add foreign key (user_id) references users(id);
 
-CREATE TABLE VARIABLE_EXPENSES (
-	ID BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-	VARIABLE_EXPENSES_TYPE_ID BIGINT UNSIGNED NOT NULL,
-	PRIMARY KEY(ID)
+create table variable_expenses (
+	id bigint unsigned auto_increment not null,
+	variable_expenses_type_id bigint unsigned not null,
+	primary key(id)
 );
 
-ALTER TABLE EXPENSE.VARIABLE_EXPENSES ADD CONSTRAINT VARIABLE_EXPENSES_TRANSACTIONS_FK FOREIGN KEY (ID) REFERENCES EXPENSE.TRANSACTIONS(ID);
-ALTER TABLE VARIABLE_EXPENSES ADD FOREIGN KEY (VARIABLE_EXPENSES_TYPE_ID) REFERENCES VARIABLE_EXPENSE_TYPES(ID);
+alter table variable_expenses add constraint variable_expenses_transactions_fk foreign key (id) references transactions(id);
+alter table variable_expenses add foreign key (variable_expenses_type_id) references variable_expense_types(id);
