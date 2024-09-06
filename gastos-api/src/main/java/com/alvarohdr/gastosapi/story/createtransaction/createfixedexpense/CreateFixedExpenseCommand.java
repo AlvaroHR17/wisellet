@@ -1,8 +1,8 @@
-package com.alvarohdr.gastosapi.story.createvariableexpense;
+package com.alvarohdr.gastosapi.story.createtransaction.createfixedexpense;
 
 import java.io.Serializable;
 
-public class CreateVariableExpenseCommand implements Serializable {
+public class CreateFixedExpenseCommand implements Serializable {
     private static final long serialVersionUID = -2554841352738015890L;
 
     private String name;

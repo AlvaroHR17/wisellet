@@ -15,10 +15,10 @@ public class UserHibernate extends BaseDaoImpl<User> implements UserDao {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        String query = FROM + " user where user.username = :username";
+    public Optional<User> findByEmail(String email) {
+        String query = FROM + " user where user.email = :email";
         return getSession().createQuery(query, User.class)
-                .setParameter("username", username)
+                .setParameter("email", email)
                 .uniqueResultOptional();
     }
 }

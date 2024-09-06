@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 @RestController
-@RequestMapping("updateTransaction")
+@RequestMapping("/v2/updateTransaction")
 public class UpdateTransactionController {
 
     private final TransactionService transactionService;
@@ -40,17 +40,17 @@ public class UpdateTransactionController {
 
         @Override
         public String visit(Income income) {
-            return "redirect:/updateIncome";
+            return "redirect:/v2/updateIncome";
         }
 
         @Override
         public String visit(FixedExpense fixedExpense) {
-            return "redirect:/updateFixedExpense";
+            return "redirect:/v2/updateFixedExpense";
         }
 
         @Override
         public String visit(VariableExpense variableExpense) {
-            return "redirect:/updateVariableExpense";
+            return "redirect:/v2/updateVariableExpense";
         }
     }
 }

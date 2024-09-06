@@ -14,6 +14,8 @@ import com.alvarohdr.gastosapi.domain.model.enums.EnumTransactionTypes;
 import com.alvarohdr.gastosapi.domain.model.visitor.impl.TransactionTypeVisitor;
 import com.alvarohdr.gastosapi.domain.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("showTransactions")
+@RequestMapping("/v2/showTransactions")
 public class ShowTransactionsController {
     private final TransactionService transactionService;
 
@@ -42,8 +44,11 @@ public class ShowTransactionsController {
 
     @GetMapping
     public ShowTransactionsReferenceData list() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        long userId = Long.parseLong(authentication.getPrincipal().toString());
+
         TransactionTypeVisitor visitor = new TransactionTypeVisitor();
-        List<Transaction> transactions = transactionService.listTransactions();
+        List<Transaction> transactions = transactionService.listTransactionsByUser(userId);
 
         List<IncomeDto> incomes = transactions.stream()
                 .filter(transaction -> transaction.accept(visitor).equals(EnumTransactionTypes.INCOME))

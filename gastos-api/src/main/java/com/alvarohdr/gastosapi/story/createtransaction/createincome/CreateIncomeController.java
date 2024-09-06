@@ -1,12 +1,14 @@
-package com.alvarohdr.gastosapi.story.createincome;
+package com.alvarohdr.gastosapi.story.createtransaction.createincome;
 
 import com.alvarohdr.gastosapi.domain.dao.IncomeDao;
 import com.alvarohdr.gastosapi.domain.dao.IncomeTypeDao;
-import com.alvarohdr.gastosapi.domain.dao.UserDao;
 import com.alvarohdr.gastosapi.domain.model.Income;
 import com.alvarohdr.gastosapi.domain.model.IncomeType;
 import com.alvarohdr.gastosapi.domain.model.User;
+import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,25 +19,28 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("createIncome")
+@RequestMapping("/v2/createIncome")
 public class CreateIncomeController {
     private final IncomeTypeDao incomeTypeDao;
-    private final UserDao userDao;
+    private final UserService userService;
     private final IncomeDao incomeDao;
 
     @Autowired
-    public CreateIncomeController(IncomeTypeDao incomeTypeDao, UserDao userDao, IncomeDao incomeDao) {
+    public CreateIncomeController(IncomeTypeDao incomeTypeDao, UserService userService, IncomeDao incomeDao) {
         this.incomeTypeDao = incomeTypeDao;
-        this.userDao = userDao;
+        this.userService = userService;
         this.incomeDao = incomeDao;
     }
 
     @PostMapping
     public void create(@RequestBody CreateIncomeCommand command) {
         // TODO: Create createTransactionRouting which redirects to each type of transaction using a visitor
-        Optional<IncomeType> optionalIncomeType = incomeTypeDao.findByDescription(command.getName());
-        // find user session?
-        User user = userDao.findByUsername("Alvaro").orElseThrow(() -> new RuntimeException("El usuario no existe"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        long userId = Long.parseLong(authentication.getPrincipal().toString());
+        User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id {" + userId + "} doesn´t exist"));
+
+        Optional<IncomeType> optionalIncomeType = incomeTypeDao.findByDescription(command.getName(), userId);
+
         IncomeType incomeType;
         if(optionalIncomeType.isPresent()) {
             incomeType = optionalIncomeType.get();

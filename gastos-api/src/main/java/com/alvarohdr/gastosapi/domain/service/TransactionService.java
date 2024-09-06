@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransactionService {
-    List<Transaction> listTransactions();
+    List<Transaction> listTransactionsByUser(long userId);
 
     Optional<Transaction> findById(long transactionId);
     void deleteTransaction(Transaction transaction);

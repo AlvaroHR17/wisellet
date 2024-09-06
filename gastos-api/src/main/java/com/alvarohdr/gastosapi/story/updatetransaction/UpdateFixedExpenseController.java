@@ -2,7 +2,10 @@ package com.alvarohdr.gastosapi.story.updatetransaction;
 
 import com.alvarohdr.gastosapi.domain.dao.*;
 import com.alvarohdr.gastosapi.domain.model.*;
+import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,24 +16,27 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("updateFixedExpense")
+@RequestMapping("/v2/updateFixedExpense")
 public class UpdateFixedExpenseController {
     private final FixedExpenseDao fixedExpenseDao;
     private final FixedExpenseTypeDao fixedExpenseTypeDao;
-    private final UserDao userDao;
+    private final UserService userService;
 
     @Autowired
-    public UpdateFixedExpenseController(FixedExpenseDao fixedExpenseDao, FixedExpenseTypeDao fixedExpenseTypeDao, UserDao userDao) {
+    public UpdateFixedExpenseController(FixedExpenseDao fixedExpenseDao, FixedExpenseTypeDao fixedExpenseTypeDao, UserService userService) {
         this.fixedExpenseDao = fixedExpenseDao;
         this.fixedExpenseTypeDao = fixedExpenseTypeDao;
-        this.userDao = userDao;
+        this.userService = userService;
     }
 
     @PutMapping
     public void update(@RequestBody UpdateTransactionCommand command) {
-        FixedExpense fixedExpense = fixedExpenseDao.findById(command.getId())
-                .orElseThrow(() -> new RuntimeException("The fixed expense with ID [" + command.getId() + "] doesn't exist"));
-        Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        long userId = Long.parseLong(authentication.getPrincipal().toString());
+
+        FixedExpense fixedExpense = fixedExpenseDao.getSecure(command.getId(), userId)
+                .orElseThrow(() -> new RuntimeException("The fixed expense with ID [" + command.getId() + "] doesn't exist for the user [" + userId + "]"));
+        Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName(), userId);
 
         FixedExpenseType fixedExpenseType, fixedExpenseTypeToDelete = null;
         List<FixedExpense> fixedExpenses = fixedExpenseDao.listFixedExpensesByTypeDescription(fixedExpense.getType().getDescription());
@@ -42,7 +48,7 @@ public class UpdateFixedExpenseController {
             }
         } else {
             if(fixedExpenses.size() > 1) {
-                User user = userDao.findByUsername("Alvaro").orElseThrow(() -> new RuntimeException("El usuario no existe"));
+                User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id [" + userId + "] doesn´t exist"));
                 fixedExpenseType = new FixedExpenseType();
                 fixedExpenseType.setUser(user);
             } else {

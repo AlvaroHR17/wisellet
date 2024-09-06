@@ -1,11 +1,12 @@
-package com.alvarohdr.gastosapi.story.createfixedexpense;
+package com.alvarohdr.gastosapi.story.createtransaction.createincome;
 
 import java.io.Serializable;
 
-public class CreateFixedExpenseCommand implements Serializable {
+public class CreateIncomeCommand implements Serializable {
     private static final long serialVersionUID = -2554841352738015890L;
 
     private String name;
+
     private float amount;
 
     public String getName() {

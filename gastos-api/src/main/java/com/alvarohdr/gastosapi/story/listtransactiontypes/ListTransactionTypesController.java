@@ -2,7 +2,6 @@ package com.alvarohdr.gastosapi.story.listtransactiontypes;
 
 import com.alvarohdr.gastosapi.domain.dao.FixedExpenseTypeDao;
 import com.alvarohdr.gastosapi.domain.dao.IncomeTypeDao;
-import com.alvarohdr.gastosapi.domain.dao.UserDao;
 import com.alvarohdr.gastosapi.domain.dao.VariableExpenseTypeDao;
 import com.alvarohdr.gastosapi.domain.dto.FixedExpenseTypeDto;
 import com.alvarohdr.gastosapi.domain.dto.IncomeTypeDto;
@@ -10,8 +9,9 @@ import com.alvarohdr.gastosapi.domain.dto.VariableExpenseTypeDto;
 import com.alvarohdr.gastosapi.domain.factory.FixedExpenseTypeFactory;
 import com.alvarohdr.gastosapi.domain.factory.IncomeTypeFactory;
 import com.alvarohdr.gastosapi.domain.factory.VariableExpenseTypeFactory;
-import com.alvarohdr.gastosapi.domain.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,10 +20,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("listTransactionTypes")
+@RequestMapping("/v2/listTransactionTypes")
 public class ListTransactionTypesController {
 
-    private final UserDao userDao;
     private final IncomeTypeDao incomeTypeDao;
     private final FixedExpenseTypeDao fixedExpenseTypeDao;
     private final VariableExpenseTypeDao variableExpenseTypeDao;
@@ -33,14 +32,12 @@ public class ListTransactionTypesController {
     private final VariableExpenseTypeFactory variableExpenseTypeFactory;
 
     @Autowired
-    public ListTransactionTypesController(UserDao userDao,
-                                          IncomeTypeDao incomeTypeDao,
+    public ListTransactionTypesController(IncomeTypeDao incomeTypeDao,
                                           FixedExpenseTypeDao fixedExpenseTypeDao,
                                           VariableExpenseTypeDao variableExpenseTypeDao,
                                           IncomeTypeFactory incomeTypeFactory,
                                           FixedExpenseTypeFactory fixedExpenseTypeFactory,
                                           VariableExpenseTypeFactory variableExpenseTypeFactory) {
-        this.userDao = userDao;
         this.incomeTypeDao = incomeTypeDao;
         this.fixedExpenseTypeDao = fixedExpenseTypeDao;
         this.variableExpenseTypeDao = variableExpenseTypeDao;
@@ -51,17 +48,19 @@ public class ListTransactionTypesController {
 
     @GetMapping
     public ListTransactionTypesReferenceData list() {
-        // TODO: get user from the session
-        User user = userDao.findByUsername("Alvaro").orElseThrow(() -> new RuntimeException("El usuario no existe"));
-        List<IncomeTypeDto> incomeTypes = incomeTypeDao.listByUser(user).stream()
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        long userId = Long.parseLong(authentication.getPrincipal().toString());
+
+        List<IncomeTypeDto> incomeTypes = incomeTypeDao.findAllSecure(userId).stream()
                 .map(incomeTypeFactory::getDto)
                 .collect(Collectors.toList());
 
-        List<FixedExpenseTypeDto> fixedExpenseTypes = fixedExpenseTypeDao.listByUser(user).stream()
+        List<FixedExpenseTypeDto> fixedExpenseTypes = fixedExpenseTypeDao.findAllSecure(userId).stream()
                 .map(fixedExpenseTypeFactory::getDto)
                 .collect(Collectors.toList());
 
-        List<VariableExpenseTypeDto> variableExpenseTypes = variableExpenseTypeDao.listByUser(user).stream()
+        List<VariableExpenseTypeDto> variableExpenseTypes = variableExpenseTypeDao.findAllSecure(userId).stream()
                 .map(variableExpenseTypeFactory::getDto)
                 .collect(Collectors.toList());
 

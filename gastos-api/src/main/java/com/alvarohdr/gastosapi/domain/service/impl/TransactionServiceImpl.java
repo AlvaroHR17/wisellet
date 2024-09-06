@@ -20,8 +20,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> listTransactions() {
-        return transactionDao.findAll();
+    public List<Transaction> listTransactionsByUser(long userId) {
+        return transactionDao.findAllSecure(userId);
     }
 
     @Override

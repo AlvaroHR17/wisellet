@@ -1,50 +1,64 @@
-import { TransactionTypesList } from "@/model/TransactionTypesList";
-import { TransactionsList } from "@/model/TransactionsList";
-import { TransactionTypes } from "@/model/enums/TransactionTypes";
+import { type TransactionsList } from "@/types/transactionsList";
+import { type TransactionTypesList } from "@/types/transactionTypesList";
+import { TransactionTypes } from "@/types/enums/TransactionTypes";
 import axios from "axios";
+import Api from "@/constants/Api";
 
 export class AxiosTransactions {
+
+  // GET ALL TRANSACTIONS
   static async getTransactions() {
-    const url = 'http://localhost:8092/showTransactions';
+    const API_URL = `${Api.URL}:${Api.PORT}`;
+    const path = '/v2/showTransactions';
+
     try {
-      const response = await axios.get(url);
+      const response = await axios.get(`${API_URL}${path}`, {
+        withCredentials: true,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        }
+      })
       return response.data as TransactionsList;
 
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        console.log("Fetch aborted");
-      } else {
-        console.error("There was an error finding the transactions: ", error);
-      }
+    } catch (error) {
+      console.error('There was a problem creating the transaction: ', error);
     }
   }
 
+  // GET TRANSACTION TYPES
   static async getTransactionTypes() {
-    const url = 'http://localhost:8092/listTransactionTypes';
+    const API_URL = `${Api.URL}:${Api.PORT}`;
+    const path = '/v2/listTransactionTypes';
+
     try {
-      const response = await axios.get(url);
+      const response = await axios.get(`${API_URL}${path}`, {
+        withCredentials: true,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        }
+      });
       return response.data as TransactionTypesList;
 
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        console.log("Fetch aborted");
-      } else {
-        console.error("There was an error finding the transaction types: ", error);
-      }
+    } catch (error) {
+      console.error('There was a problem creating the transaction: ', error);
     }
   }
 
+  // CREATE A NEW TRANSACTION
   static async createTransaction(name: string, amount: number, transactionType: TransactionTypes) {
-    let url = "";
+    const API_URL = `${Api.URL}:${Api.PORT}`;
+    let path = "";
     switch(transactionType) {
       case TransactionTypes.INCOME:
-        url = 'http://localhost:8092/createIncome';
+        path = '/v2/createIncome';
         break;
       case TransactionTypes.FIXED_EXPENSE:
-        url = 'http://localhost:8092/createFixedExpense';
+        path = '/v2/createFixedExpense';
         break;
       case TransactionTypes.VARIABLE_EXPENSE:
-        url = 'http://localhost:8092/createVariableExpense';
+        path = '/v2/createVariableExpense';
         break;
     }
     
@@ -54,26 +68,42 @@ export class AxiosTransactions {
     };
 
     try {
-      await axios.post(url, data);
+      await axios.post(`${API_URL}${path}`, data, {
+        withCredentials: true,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        }
+      });
       console.log(transactionType + ' created successfully');
     } catch (error) {
       console.error('There was a problem creating the transaction: ', error);
     }
   };
 
+  // DELETE TRANSACTION
   static async deleteTransaction(id: number) {
-    const url = 'http://localhost:8092/deleteTransaction/' + id;
+    const API_URL = `${Api.URL}:${Api.PORT}`;
+    const path = `/v2/deleteTransaction/${id}`;
     
     try {
-      await axios.delete(url);
+      await axios.delete(`${API_URL}${path}`, {
+        withCredentials: true,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        }
+      });
       console.log('Transaction deleted successfully');
     } catch(error) {
       console.error('There was a problem deleting a transaction: ', error)
     }
   }
 
+  // UPDATE A TRANSACTION
   static async updateTransaction(id:number, name:string, amount:number) {
-    const url = 'http://localhost:8092/updateTransaction';
+    const API_URL = `${Api.URL}:${Api.PORT}`;
+    const path = '/v2/updateTransaction';
     
     const data = {
       id: id,
@@ -82,7 +112,13 @@ export class AxiosTransactions {
     };
 
     try {
-      await axios.put(url, data);
+      await axios.put(`${API_URL}${path}`, data, {
+        withCredentials: true,
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        }
+      });
       console.log('Transaction updated successfully');
     } catch(error) {
       console.error('There was a problem updating a transaction: ', error)

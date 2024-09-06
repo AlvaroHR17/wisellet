@@ -6,18 +6,9 @@ import com.alvarohdr.gastosapi.domain.model.FixedExpense;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class FixedExpenseHibernate extends BaseDaoImpl<FixedExpense> implements FixedExpenseDao {
-
-    @Override
-    public Optional<FixedExpense> findById(long id) {
-        String query = FROM + " fixedExpense where fixedExpense.id = :id";
-        return getSession().createQuery(query, FixedExpense.class)
-                .setParameter("id", id)
-                .uniqueResultOptional();
-    }
 
     @Override
     public List<FixedExpense> listFixedExpensesByTypeDescription(String typeDescription) {

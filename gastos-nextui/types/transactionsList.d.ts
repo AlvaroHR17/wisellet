@@ -1,4 +1,4 @@
-import { Transaction } from "./Transaction";
+import { Transaction } from "./transaction";
 
 export type TransactionsList = {
     incomes: Transaction[];

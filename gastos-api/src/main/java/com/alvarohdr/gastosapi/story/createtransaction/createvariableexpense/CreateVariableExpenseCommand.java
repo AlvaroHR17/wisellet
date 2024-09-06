@@ -1,12 +1,11 @@
-package com.alvarohdr.gastosapi.story.createincome;
+package com.alvarohdr.gastosapi.story.createtransaction.createvariableexpense;
 
 import java.io.Serializable;
 
-public class CreateIncomeCommand implements Serializable {
+public class CreateVariableExpenseCommand implements Serializable {
     private static final long serialVersionUID = -2554841352738015890L;
 
     private String name;
-
     private float amount;
 
     public String getName() {

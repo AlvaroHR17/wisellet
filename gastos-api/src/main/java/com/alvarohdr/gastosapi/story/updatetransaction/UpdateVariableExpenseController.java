@@ -2,7 +2,10 @@ package com.alvarohdr.gastosapi.story.updatetransaction;
 
 import com.alvarohdr.gastosapi.domain.dao.*;
 import com.alvarohdr.gastosapi.domain.model.*;
+import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,24 +16,27 @@ import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("updateVariableExpense")
+@RequestMapping("/v2/updateVariableExpense")
 public class UpdateVariableExpenseController {
     private final VariableExpenseDao variableExpenseDao;
     private final VariableExpenseTypeDao variableExpenseTypeDao;
-    private final UserDao userDao;
+    private final UserService userService;
 
     @Autowired
-    public UpdateVariableExpenseController(VariableExpenseDao variableExpenseDao, VariableExpenseTypeDao variableExpenseTypeDao, UserDao userDao) {
+    public UpdateVariableExpenseController(VariableExpenseDao variableExpenseDao, VariableExpenseTypeDao variableExpenseTypeDao, UserService userService) {
         this.variableExpenseDao = variableExpenseDao;
         this.variableExpenseTypeDao = variableExpenseTypeDao;
-        this.userDao = userDao;
+        this.userService = userService;
     }
 
     @PutMapping
     public void update(@RequestBody UpdateTransactionCommand command) {
-        VariableExpense variableExpense = variableExpenseDao.findById(command.getId())
-                .orElseThrow(() -> new RuntimeException("The variable expense with ID [" + command.getId() + "] doesn't exist"));
-        Optional<VariableExpenseType> optionalVariableExpenseType = variableExpenseTypeDao.findByDescription(command.getName());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        long userId = Long.parseLong(authentication.getPrincipal().toString());
+
+        VariableExpense variableExpense = variableExpenseDao.getSecure(command.getId(), userId)
+                .orElseThrow(() -> new RuntimeException("The variable expense with ID [" + command.getId() + "] doesn't exist for the user [" + userId + "]"));
+        Optional<VariableExpenseType> optionalVariableExpenseType = variableExpenseTypeDao.findByDescription(command.getName(), userId);
 
         VariableExpenseType variableExpenseType, variableExpenseTypeToDelete = null;
         List<VariableExpense> variableExpenses = variableExpenseDao.listVariableExpensesByTypeDescription(variableExpense.getType().getDescription());
@@ -42,7 +48,7 @@ public class UpdateVariableExpenseController {
             }
         } else {
             if(variableExpenses.size() > 1) {
-                User user = userDao.findByUsername("Alvaro").orElseThrow(() -> new RuntimeException("El usuario no existe"));
+                User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id [" + userId + "] doesn´t exist"));
                 variableExpenseType = new VariableExpenseType();
                 variableExpenseType.setUser(user);
             } else {

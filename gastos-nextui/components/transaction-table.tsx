@@ -1,22 +1,27 @@
-import { FormEvent, KeyboardEventHandler, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { DeleteIcon } from "@/icons/DeleteIcon";
 import { EditIcon } from "@/icons/EditIcon";
-import { TransactionTypes } from "@/model/enums/TransactionTypes";
-import { Autocomplete, AutocompleteItem, Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from "@nextui-org/react";
-import { Transaction, TransactionType } from "@/model/Transaction";
+import { TransactionTypes } from "@/types/enums/TransactionTypes";
+import { Autocomplete, AutocompleteItem, Button, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from "@nextui-org/react";
 import { AxiosTransactions } from "@/axios/AxiosTransactions";
+import { Transaction, TransactionType } from "@/types/transaction";
+import { EditTransactionModal } from "./edit-transaction-modal";
+import { getInput } from "@/utils/FormUtils";
 
 export interface TransactionTableProps {
     transactionType: TransactionTypes;
     list: Transaction[];
     typeList: TransactionType[];
-    loadData: Function;
-    setLoading: Function;
+    loadData: (() => void);
+    setLoading: ((newData: boolean) => void);
 }
+
+const DESCRIPTION_NAME = "description";
+const AMOUNT_NAME = "amount"
   
 export function TransactionTable ({transactionType, list, typeList, loadData, setLoading} : TransactionTableProps) {
 
-  const [formError, setFormError] = useState<String>("");
+  const [formError, setFormError] = useState("");
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction>();
 
@@ -26,15 +31,18 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
     );
   }, [])
 
-  const createTransaction = async (event: FormEvent) => {
+  const createTransaction = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError("");
-    const form = event.currentTarget as HTMLFormElement;
-    const inputDescription = form.description as HTMLInputElement;
-    const description = inputDescription.value as string;
+    const form = event.currentTarget;
+    const {elements} = form;
+    const inputDescription = getInput(elements.namedItem(DESCRIPTION_NAME));
+    if(!inputDescription) return;
+    const description = inputDescription.value
 
-    const inputAmount = form.amount as HTMLInputElement;
-    const amount = +(inputAmount.value as string);
+    const inputAmount = getInput(elements.namedItem(AMOUNT_NAME));
+    if(!inputAmount) return;
+    const amount = +inputAmount.value
 
     if(description.trim() !== "" && amount > 0){
       await AxiosTransactions.createTransaction(description, amount, transactionType);
@@ -50,47 +58,41 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
     loadData();
   }
 
-  const bottomContent = useMemo(() => {
-    return (
-      <div>
-        <form className="flex gap-4" onSubmit={createTransaction}>
-          <Autocomplete
-            items={typeList ?? []}
-            label="Name"
-            className="w-7/12"
-            allowsCustomValue
-            name="description"
-            isRequired>
-            {(type) => <AutocompleteItem key={type.id}>{type.descripcion}</AutocompleteItem>}
-          </Autocomplete>
-          <Input label="Amount" className="w-4/12" type="number" min='0' name="amount" step="any" isRequired></Input>
-          <Button type="submit" className="w-1/12 h-auto" color="success" variant="ghost">Save</Button>
-        </form>
-        <p className="text-small text-danger mt-3">{formError}</p>
-      </div>
-    );
-  }, [typeList, formError])
-
   const handleOpenModal = (transaction: Transaction) => {
     setTransactionToEdit(transaction);
     onOpen();
   }
 
-  const updateTransaction = async() => {
-    setLoading(true);
-    onOpenChange();
-    const inputUpdateName = document.getElementById("inputUpdateName") as HTMLInputElement;
-    const updateName = inputUpdateName.value as string;
-    const inputUpdateAmount = document.getElementById("inputUpdateAmount") as HTMLInputElement;
-    const updateAmount = +(inputUpdateAmount.value as string);
-
-    await AxiosTransactions.updateTransaction(transactionToEdit!.id, updateName, updateAmount);
-    loadData();
-  }
-
-  const handleEnter = (event: any) => {
-    if((event as KeyboardEvent).key == "Enter") updateTransaction();
-  }
+  const bottomContent = useMemo(() => {
+    return (
+      <div>
+        <form 
+          className="flex gap-4" 
+          onSubmit={createTransaction}
+        >
+          <Autocomplete
+            items={typeList ?? []}
+            label="Name"
+            className="w-7/12"
+            allowsCustomValue
+            name={DESCRIPTION_NAME}
+            isRequired>
+            {(type) => <AutocompleteItem key={type.id}>{type.descripcion}</AutocompleteItem>}
+          </Autocomplete>
+          <Input 
+            label="Amount" 
+            className="w-4/12" 
+            type="number" 
+            min='0'
+            name={AMOUNT_NAME}
+            step="any" 
+            isRequired/>
+          <Button type="submit" className="w-1/12 h-auto" color="success" variant="ghost">Save</Button>
+        </form>
+        {formError && <p className="text-small text-danger mt-3">{formError}</p>}
+      </div>
+    );
+  }, [typeList, formError])
 
   return (
     <>
@@ -100,7 +102,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
           topContentPlacement="outside" 
           bottomContent={(bottomContent)}>
         <TableHeader>
-          {/*ALLOW SORTING*/}
+          {/*TODO ALLOW SORTING*/}
           <TableColumn key="name" className="w-7/12">NAME</TableColumn>
           <TableColumn key="amount" className="w-4/12">AMOUNT</TableColumn>
           <TableColumn key="actions" className="w-1/12">ACTIONS</TableColumn>
@@ -130,50 +132,14 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
           )}
         </TableBody>
       </Table>
-      <Modal isOpen={isOpen} 
-        onOpenChange={onOpenChange}
-        placement="top-center"
-        backdrop="blur">
-          <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Edit transaction</ModalHeader>
-              <ModalBody className="flex-row">
-                <Autocomplete
-                  items={typeList ?? []}
-                  label="Name"
-                  className="w-7/12"
-                  allowsCustomValue
-                  name="description"
-                  isRequired
-                  defaultInputValue={transactionToEdit!.type.descripcion}
-                  id="inputUpdateName"
-                  onKeyDown={handleEnter}>
-                  {(type) => <AutocompleteItem key={type.id}>{type.descripcion}</AutocompleteItem>}
-                </Autocomplete>
-                <Input id="inputUpdateAmount" label="Amount" 
-                  className="w-4/12" 
-                  type="number"
-                  min='0'
-                  name="amount"
-                  step="any"
-                  isRequired 
-                  defaultValue={transactionToEdit!.amount.toString()}
-                  onKeyDown={handleEnter}/>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={updateTransaction}>
-                  Update
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-
-      </Modal>
+      
+      <EditTransactionModal 
+        setLoading={setLoading} 
+        onOpenChange={onOpenChange} 
+        loadData={loadData}
+        transactionToEdit={transactionToEdit!}
+        isOpen={isOpen}
+        typeList={typeList}/>
     </>
   )
 }
