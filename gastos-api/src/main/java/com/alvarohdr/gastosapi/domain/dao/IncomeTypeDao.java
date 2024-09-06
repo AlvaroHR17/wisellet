@@ -6,5 +6,5 @@ import com.alvarohdr.gastosapi.domain.model.IncomeType;
 import java.util.Optional;
 
 public interface IncomeTypeDao extends BaseDao<IncomeType> {
-    Optional<IncomeType> findByDescription(String description, long userId);
+    Optional<IncomeType> findByDescription(String description);
 }

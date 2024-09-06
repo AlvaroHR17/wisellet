@@ -9,11 +9,13 @@ import java.util.List;
 
 @Component
 public class IncomeHibernate extends BaseDaoImpl<Income> implements IncomeDao {
+
     @Override
     public List<Income> listIncomesByTypeDescription(String typeDescription) {
-        String query = FROM + " income where income.type.description = :typeDescription";
+        String query = FROM + " income where income.type.description = :typeDescription and income.user.id = :userId";
         return getSession().createQuery(query, Income.class)
                 .setParameter("typeDescription", typeDescription)
+                .setParameter("userId", getUserId())
                 .list();
     }
 }

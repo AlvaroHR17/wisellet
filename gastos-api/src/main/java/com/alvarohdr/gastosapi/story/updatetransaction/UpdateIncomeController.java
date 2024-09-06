@@ -7,8 +7,6 @@ import com.alvarohdr.gastosapi.domain.model.IncomeType;
 import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,12 +32,10 @@ public class UpdateIncomeController {
 
     @PutMapping
     public void update(@RequestBody UpdateTransactionCommand command) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long userId = Long.parseLong(authentication.getPrincipal().toString());
 
-        Income income = incomeDao.getSecure(command.getId(), userId)
-                .orElseThrow(() -> new RuntimeException("The income with ID [" + command.getId() + "] doesn't exist for the user [" + userId + "]"));
-        Optional<IncomeType> optionalIncomeType = incomeTypeDao.findByDescription(command.getName(), userId);
+        Income income = incomeDao.get(command.getId())
+                .orElseThrow(() -> new RuntimeException("The income with ID [" + command.getId() + "] doesn't exist or you are unauthorized"));
+        Optional<IncomeType> optionalIncomeType = incomeTypeDao.findByDescription(command.getName());
 
         IncomeType incomeType, incomeTypeToDelete = null;
         List<Income> incomes = incomeDao.listIncomesByTypeDescription(income.getType().getDescription());
@@ -51,7 +47,7 @@ public class UpdateIncomeController {
             }
         } else {
             if(incomes.size() > 1) {
-                User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id [" + userId + "] doesn´t exist"));
+                User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
                 incomeType = new IncomeType();
                 incomeType.setUser(user);
             } else {

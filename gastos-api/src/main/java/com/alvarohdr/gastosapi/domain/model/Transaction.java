@@ -1,19 +1,17 @@
 package com.alvarohdr.gastosapi.domain.model;
 
+import com.alvarohdr.framework.entities.SecuredAbstractEntity;
 import com.alvarohdr.gastosapi.domain.model.visitor.TransactionVisitor;
 import jakarta.persistence.*;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "TRANSACTIONS")
-public abstract class Transaction implements Serializable {
+public abstract class Transaction extends SecuredAbstractEntity {
     private static final long serialVersionUID = -5469930019104134853L;
 
-    protected long id;
-    protected User user;
     protected float amount;
     protected LocalDate creationDate;
 
@@ -24,34 +22,12 @@ public abstract class Transaction implements Serializable {
                        User user,
                        int amount,
                        LocalDate creationDate) {
-        this.id = id;
-        this.user = user;
+        super(id, user);
         this.amount = amount;
         this.creationDate = creationDate;
     }
 
     public abstract <T> T accept(TransactionVisitor<T> visitor);
-
-    @Id
-    @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false)
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     @Column(name = "AMOUNT", nullable = false)
     public float getAmount() {

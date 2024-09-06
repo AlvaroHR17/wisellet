@@ -1,11 +1,12 @@
 package com.alvarohdr.gastosapi.story.createtransaction.createfixedexpense;
 
-import com.alvarohdr.gastosapi.domain.dao.*;
-import com.alvarohdr.gastosapi.domain.model.*;
+import com.alvarohdr.gastosapi.domain.dao.FixedExpenseDao;
+import com.alvarohdr.gastosapi.domain.dao.FixedExpenseTypeDao;
+import com.alvarohdr.gastosapi.domain.model.FixedExpense;
+import com.alvarohdr.gastosapi.domain.model.FixedExpenseType;
+import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,11 +31,9 @@ public class CreateFixedExpenseController {
 
     @PostMapping
     public void create(@RequestBody CreateFixedExpenseCommand command) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long userId = Long.parseLong(authentication.getPrincipal().toString());
-        User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id {" + userId + "} doesn´t exist"));
+        User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
 
-        Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName(), userId);
+        Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName());
 
         FixedExpenseType fixedExpenseType;
         if(optionalFixedExpenseType.isPresent()) {

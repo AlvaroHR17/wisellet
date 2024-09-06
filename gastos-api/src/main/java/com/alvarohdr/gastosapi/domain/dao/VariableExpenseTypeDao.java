@@ -6,5 +6,5 @@ import com.alvarohdr.gastosapi.domain.model.VariableExpenseType;
 import java.util.Optional;
 
 public interface VariableExpenseTypeDao extends BaseDao<VariableExpenseType> {
-    Optional<VariableExpenseType> findByDescription(String description, long userId);
+    Optional<VariableExpenseType> findByDescription(String description);
 }

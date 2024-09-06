@@ -7,8 +7,6 @@ import com.alvarohdr.gastosapi.domain.model.VariableExpense;
 import com.alvarohdr.gastosapi.domain.model.VariableExpenseType;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,11 +33,9 @@ public class CreateVariableExpenseController {
 
     @PostMapping
     public void create(@RequestBody CreateVariableExpenseCommand command) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long userId = Long.parseLong(authentication.getPrincipal().toString());
-        User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id {" + userId + "} doesn´t exist"));
+        User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
 
-        Optional<VariableExpenseType> optionalVariableExpenseType = variableExpenseTypeDao.findByDescription(command.getName(), userId);
+        Optional<VariableExpenseType> optionalVariableExpenseType = variableExpenseTypeDao.findByDescription(command.getName());
 
         VariableExpenseType variableExpenseType;
         if(optionalVariableExpenseType.isPresent()) {

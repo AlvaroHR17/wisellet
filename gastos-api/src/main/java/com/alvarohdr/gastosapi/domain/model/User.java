@@ -1,18 +1,13 @@
 package com.alvarohdr.gastosapi.domain.model;
 
+import com.alvarohdr.framework.entities.AbstractEntity;
 import jakarta.persistence.*;
-
-import java.io.Serializable;
 
 @Entity
 @Table(name = "USERS")
-public class User implements Serializable {
+public class User extends AbstractEntity {
     private static final long serialVersionUID = 1375848602968175021L;
-    private static final int USERNAME_LENGTH = 255;
-    private static final int PASSWORD_LENGTH = 500;
-    private static final int EMAIL_LENGTH = 255;
 
-    private long id;
     private String firstName;
 
     private String lastName;
@@ -28,17 +23,6 @@ public class User implements Serializable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-    }
-
-    @Id
-    @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     @Column(name = "FIRST_NAME", nullable = false)

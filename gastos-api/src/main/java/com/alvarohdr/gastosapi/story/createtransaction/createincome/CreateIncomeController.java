@@ -7,8 +7,6 @@ import com.alvarohdr.gastosapi.domain.model.IncomeType;
 import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,11 +33,9 @@ public class CreateIncomeController {
     @PostMapping
     public void create(@RequestBody CreateIncomeCommand command) {
         // TODO: Create createTransactionRouting which redirects to each type of transaction using a visitor
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long userId = Long.parseLong(authentication.getPrincipal().toString());
-        User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id {" + userId + "} doesn´t exist"));
+        User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
 
-        Optional<IncomeType> optionalIncomeType = incomeTypeDao.findByDescription(command.getName(), userId);
+        Optional<IncomeType> optionalIncomeType = incomeTypeDao.findByDescription(command.getName());
 
         IncomeType incomeType;
         if(optionalIncomeType.isPresent()) {

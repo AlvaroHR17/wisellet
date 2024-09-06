@@ -1,11 +1,12 @@
 package com.alvarohdr.gastosapi.story.updatetransaction;
 
-import com.alvarohdr.gastosapi.domain.dao.*;
-import com.alvarohdr.gastosapi.domain.model.*;
+import com.alvarohdr.gastosapi.domain.dao.FixedExpenseDao;
+import com.alvarohdr.gastosapi.domain.dao.FixedExpenseTypeDao;
+import com.alvarohdr.gastosapi.domain.model.FixedExpense;
+import com.alvarohdr.gastosapi.domain.model.FixedExpenseType;
+import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +32,10 @@ public class UpdateFixedExpenseController {
 
     @PutMapping
     public void update(@RequestBody UpdateTransactionCommand command) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        long userId = Long.parseLong(authentication.getPrincipal().toString());
 
-        FixedExpense fixedExpense = fixedExpenseDao.getSecure(command.getId(), userId)
-                .orElseThrow(() -> new RuntimeException("The fixed expense with ID [" + command.getId() + "] doesn't exist for the user [" + userId + "]"));
-        Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName(), userId);
+        FixedExpense fixedExpense = fixedExpenseDao.get(command.getId())
+                .orElseThrow(() -> new RuntimeException("The fixed expense with ID [" + command.getId() + "] doesn't exist or you are unauthorized"));
+        Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName());
 
         FixedExpenseType fixedExpenseType, fixedExpenseTypeToDelete = null;
         List<FixedExpense> fixedExpenses = fixedExpenseDao.listFixedExpensesByTypeDescription(fixedExpense.getType().getDescription());
@@ -48,7 +47,7 @@ public class UpdateFixedExpenseController {
             }
         } else {
             if(fixedExpenses.size() > 1) {
-                User user = userService.findById(userId).orElseThrow(() -> new RuntimeException("The user with id [" + userId + "] doesn´t exist"));
+                User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
                 fixedExpenseType = new FixedExpenseType();
                 fixedExpenseType.setUser(user);
             } else {

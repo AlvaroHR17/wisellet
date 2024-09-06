@@ -77,7 +77,7 @@ public class UserService {
         return userDao.findByEmail(email);
     }
 
-    public Optional<User> findById(long id) {
-        return userDao.get(id);
+    public Optional<User> getCurrentUser() {
+        return userDao.getCurrentUser();
     }
 }

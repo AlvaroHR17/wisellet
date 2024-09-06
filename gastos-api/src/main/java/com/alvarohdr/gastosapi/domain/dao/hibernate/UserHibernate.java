@@ -21,4 +21,9 @@ public class UserHibernate extends BaseDaoImpl<User> implements UserDao {
                 .setParameter("email", email)
                 .uniqueResultOptional();
     }
+
+    @Override
+    public Optional<User> getCurrentUser() {
+        return this.get(getUserId());
+    }
 }

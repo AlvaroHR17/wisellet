@@ -10,11 +10,11 @@ import java.util.Optional;
 @Component
 public class VariableExpenseTypeHibernate extends BaseDaoImpl<VariableExpenseType> implements VariableExpenseTypeDao {
     @Override
-    public Optional<VariableExpenseType> findByDescription(String description, long userId) {
+    public Optional<VariableExpenseType> findByDescription(String description) {
         String query = FROM + " vety where vety.description = :description and vety.user.id = :userId";
         return getSession().createQuery(query, VariableExpenseType.class)
                 .setParameter("description", description)
-                .setParameter("userId", userId)
+                .setParameter("userId", getUserId())
                 .uniqueResultOptional();
     }
 }

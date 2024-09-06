@@ -6,5 +6,5 @@ import com.alvarohdr.gastosapi.domain.model.FixedExpenseType;
 import java.util.Optional;
 
 public interface FixedExpenseTypeDao extends BaseDao<FixedExpenseType> {
-    Optional<FixedExpenseType> findByDescription(String description, long userId);
+    Optional<FixedExpenseType> findByDescription(String description);
 }

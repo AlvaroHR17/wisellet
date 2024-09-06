@@ -10,11 +10,11 @@ import java.util.Optional;
 @Component
 public class IncomeTypeHibernate extends BaseDaoImpl<IncomeType> implements IncomeTypeDao {
     @Override
-    public Optional<IncomeType> findByDescription(String description, long userId) {
+    public Optional<IncomeType> findByDescription(String description) {
         String query = FROM + " inty where inty.description = :description and inty.user.id = :userId";
         return getSession().createQuery(query, IncomeType.class)
                 .setParameter("description", description)
-                .setParameter("userId", userId)
+                .setParameter("userId", getUserId())
                 .uniqueResultOptional();
     }
 }

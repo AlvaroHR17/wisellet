@@ -1,37 +1,24 @@
 package com.alvarohdr.gastosapi.domain.model;
 
+import com.alvarohdr.framework.entities.SecuredAbstractEntity;
 import jakarta.persistence.*;
-
-import java.io.Serializable;
 
 @Entity
 @Table(name = "FIXED_EXPENSE_TYPES")
-public class FixedExpenseType implements Serializable {
+public class FixedExpenseType extends SecuredAbstractEntity {
 
     private static final long serialVersionUID = -7525644238064195439L;
     private static final int DESCRIPTION_LENGTH = 255;
 
-    private long id;
     private String description;
     private User user;
 
     public FixedExpenseType() {
     }
 
-    public FixedExpenseType(long id, String description) {
-        this.id = id;
+    public FixedExpenseType(long id, User user, String description) {
+        super(id, user);
         this.description = description;
-    }
-
-    @Id
-    @Column(name = "ID", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     @Column(name = "DESCRIPTION")
@@ -41,16 +28,6 @@ public class FixedExpenseType implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID", nullable = false)
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     @Override

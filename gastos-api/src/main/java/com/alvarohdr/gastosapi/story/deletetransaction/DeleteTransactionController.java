@@ -20,6 +20,5 @@ public class DeleteTransactionController {
     @DeleteMapping("{id}")
     public void delete(@PathVariable long id) {
         transactionService.findById(id).ifPresent(transactionService::deleteTransaction);
-        // TODO: delete type if it's unused??
     }
 }

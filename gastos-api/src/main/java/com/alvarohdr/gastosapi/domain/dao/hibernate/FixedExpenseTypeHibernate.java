@@ -10,11 +10,11 @@ import java.util.Optional;
 @Component
 public class FixedExpenseTypeHibernate extends BaseDaoImpl<FixedExpenseType> implements FixedExpenseTypeDao {
     @Override
-    public Optional<FixedExpenseType> findByDescription(String description, long userId) {
+    public Optional<FixedExpenseType> findByDescription(String description) {
         String query = FROM + " fety where fety.description = :description and fety.user.id = :userId";
         return getSession().createQuery(query, FixedExpenseType.class)
                 .setParameter("description", description)
-                .setParameter("userId", userId)
+                .setParameter("userId", getUserId())
                 .uniqueResultOptional();
     }
 }
