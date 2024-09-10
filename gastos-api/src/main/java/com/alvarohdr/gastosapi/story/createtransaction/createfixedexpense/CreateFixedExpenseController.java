@@ -6,13 +6,14 @@ import com.alvarohdr.gastosapi.domain.model.FixedExpense;
 import com.alvarohdr.gastosapi.domain.model.FixedExpenseType;
 import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
+import com.alvarohdr.gastosapi.story.createtransaction.CreateTransactionCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -30,7 +31,7 @@ public class CreateFixedExpenseController {
     }
 
     @PostMapping
-    public void create(@RequestBody CreateFixedExpenseCommand command) {
+    public void create(@RequestBody CreateTransactionCommand command) {
         User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
 
         Optional<FixedExpenseType> optionalFixedExpenseType = fixedExpenseTypeDao.findByDescription(command.getName());
@@ -47,9 +48,11 @@ public class CreateFixedExpenseController {
 
         FixedExpense fixedExpense = new FixedExpense();
         fixedExpense.setUser(user);
-        fixedExpense.setCreationDate(LocalDate.now());
+        fixedExpense.setCreationDate(LocalDateTime.now());
         fixedExpense.setType(fixedExpenseType);
         fixedExpense.setAmount(command.getAmount());
+        fixedExpense.setMonth(command.getMonth());
+        fixedExpense.setYear(command.getYear());
         fixedExpenseDao.saveOrUpdate(fixedExpense);
     }
 }

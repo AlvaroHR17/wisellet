@@ -1,11 +1,11 @@
-import { AxiosTransactions } from "@/axios/AxiosTransactions";
+
+import { updateTransaction } from "@/axios/AxiosTransactions";
 import { Transaction, TransactionType } from "@/types/transaction";
 import { getInput } from "@/utils/FormUtils";
 import { Autocomplete, AutocompleteItem, Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@nextui-org/react";
 import { FormEvent, useState } from "react";
 
 interface Props {
-    setLoading: ((newData: boolean) => void)
     onOpenChange: (() => void)
     loadData: (() => void)
     transactionToEdit: Transaction
@@ -13,14 +13,14 @@ interface Props {
     typeList: TransactionType[]
 }
 
-export function EditTransactionModal ({setLoading, onOpenChange, loadData, transactionToEdit, isOpen, typeList} : Props) {
+export function EditTransactionModal ({onOpenChange, loadData, transactionToEdit, isOpen, typeList} : Props) {
 
     const [formError, setFormError] = useState("");
 
     const DESCRIPTION_NAME = "description";
     const AMOUNT_NAME = "amount"
     
-    const updateTransaction = async(event: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async(event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setFormError("");
         const form = event.currentTarget;
@@ -34,9 +34,8 @@ export function EditTransactionModal ({setLoading, onOpenChange, loadData, trans
         const amount = +inputAmount.value
 
         if(description.trim() !== "" && amount > 0){
-            setLoading(true);
             onOpenChange();
-            await AxiosTransactions.updateTransaction(transactionToEdit!.id, description, amount);
+            await updateTransaction(transactionToEdit!.id, description, amount);
             loadData();
             form.reset();
         } else {
@@ -55,7 +54,7 @@ export function EditTransactionModal ({setLoading, onOpenChange, loadData, trans
             <>
               <ModalHeader className="flex flex-col gap-1">Edit transaction</ModalHeader>
               <form
-                onSubmit={updateTransaction}
+                onSubmit={handleSubmit}
               >
                 <ModalBody className="flex-row justify-between flex-wrap">
                     <Autocomplete

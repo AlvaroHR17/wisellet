@@ -36,5 +36,4 @@ public class LoginController {
     public boolean getCurrentUser(UsernamePasswordAuthenticationToken principal) {
         return Objects.nonNull(principal) && principal.isAuthenticated();
     }
-
 }

@@ -43,8 +43,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<Transaction> listTransactionsByUser() {
-        return transactionDao.findAll();
+    public List<Transaction> listTransactionsInMonth(short month, int year) {
+        return transactionDao.listInMonth(month, year);
     }
 
     @Override

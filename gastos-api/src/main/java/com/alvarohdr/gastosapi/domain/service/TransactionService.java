@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TransactionService {
-    List<Transaction> listTransactionsByUser();
+    List<Transaction> listTransactionsInMonth(short month, int year);
 
     Optional<Transaction> findById(long transactionId);
     void deleteTransaction(Transaction transaction);

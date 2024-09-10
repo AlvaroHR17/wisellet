@@ -9,7 +9,7 @@ import { Providers } from "./providers";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 import { Home } from "@/components/home";
-import { getAuth } from "@/axios/AxiosLogin";
+import { getAuth, invalidateToken } from "@/axios/AxiosLogin";
 import { postLoginToken } from '@/axios/AxiosLogin';
 import { CredentialResponse, GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -24,6 +24,11 @@ export default function App() {
       setLoggedIn(result);
     }
   };
+
+  const logout = () => {
+    invalidateToken();
+    setLoggedIn(false);
+  }
 
   useEffect(() => {
     const getAuthorization = async () => {
@@ -44,12 +49,12 @@ export default function App() {
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           {isLoggedIn ? 
             <div className="relative flex flex-col h-screen">
-              <Navbar />
+              <Navbar logout={logout} />
               <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
                 <Home/>
               </main>
               <footer className="w-full flex items-center justify-center py-3">
-                <Link
+                {/* <Link
                   isExternal
                   className="flex items-center gap-1 text-current"
                   href="https://nextui-docs-v2.vercel.app?utm_source=next-app-template"
@@ -57,7 +62,7 @@ export default function App() {
                 >
                   <span className="text-default-600">Powered by</span>
                   <p className="text-primary">NextUI</p>
-                </Link>
+                </Link> */}
               </footer>
             </div>
           :

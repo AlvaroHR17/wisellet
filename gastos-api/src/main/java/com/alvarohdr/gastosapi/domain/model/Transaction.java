@@ -4,7 +4,7 @@ import com.alvarohdr.framework.entities.SecuredAbstractEntity;
 import com.alvarohdr.gastosapi.domain.model.visitor.TransactionVisitor;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -13,7 +13,9 @@ public abstract class Transaction extends SecuredAbstractEntity {
     private static final long serialVersionUID = -5469930019104134853L;
 
     protected float amount;
-    protected LocalDate creationDate;
+    protected short month;
+    protected int year;
+    protected LocalDateTime creationDate;
 
     public Transaction() {
     }
@@ -21,9 +23,13 @@ public abstract class Transaction extends SecuredAbstractEntity {
     public Transaction(long id,
                        User user,
                        int amount,
-                       LocalDate creationDate) {
+                       short month,
+                       int year,
+                       LocalDateTime creationDate) {
         super(id, user);
         this.amount = amount;
+        this.month = month;
+        this.year = year;
         this.creationDate = creationDate;
     }
 
@@ -38,12 +44,30 @@ public abstract class Transaction extends SecuredAbstractEntity {
         this.amount = amount;
     }
 
+    @Column(name = "MONTH", nullable = false)
+    public short getMonth() {
+        return month;
+    }
+
+    public void setMonth(short month) {
+        this.month = month;
+    }
+
+    @Column(name = "YEAR", nullable = false)
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
     @Column(name = "CREATION_DATE", nullable = false)
-    public LocalDate getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 

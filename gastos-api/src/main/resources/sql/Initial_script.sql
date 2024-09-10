@@ -18,8 +18,10 @@ alter table users add unique (email);
 create table transactions (
     id bigint unsigned auto_increment not null,
     user_id bigint unsigned not null,
-    creation_date timestamp not null,
     amount float not null,
+    month smallint unsigned not null,
+    year int unsigned not null,
+    creation_date timestamp not null,
     primary key(id)
 );
 

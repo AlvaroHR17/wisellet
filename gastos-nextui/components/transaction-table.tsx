@@ -3,24 +3,25 @@ import { DeleteIcon } from "@/icons/DeleteIcon";
 import { EditIcon } from "@/icons/EditIcon";
 import { TransactionTypes } from "@/types/enums/TransactionTypes";
 import { Autocomplete, AutocompleteItem, Button, Input, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure } from "@nextui-org/react";
-import { AxiosTransactions } from "@/axios/AxiosTransactions";
 import { Transaction, TransactionType } from "@/types/transaction";
 import { EditTransactionModal } from "./edit-transaction-modal";
 import { getInput } from "@/utils/FormUtils";
+import { useDate } from "@/hooks/useDate";
+import { createTransaction, deleteTransaction } from "@/axios/AxiosTransactions";
 
 export interface TransactionTableProps {
     transactionType: TransactionTypes;
     list: Transaction[];
     typeList: TransactionType[];
-    loadData: (() => void);
-    setLoading: ((newData: boolean) => void);
+    loadData: (() => void)
 }
 
 const DESCRIPTION_NAME = "description";
 const AMOUNT_NAME = "amount"
   
-export function TransactionTable ({transactionType, list, typeList, loadData, setLoading} : TransactionTableProps) {
+export function TransactionTable ({transactionType, list, typeList, loadData} : TransactionTableProps) {
 
+  const {date} = useDate();
   const [formError, setFormError] = useState("");
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction>();
@@ -31,7 +32,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
     );
   }, [])
 
-  const createTransaction = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError("");
     const form = event.currentTarget;
@@ -45,7 +46,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
     const amount = +inputAmount.value
 
     if(description.trim() !== "" && amount > 0){
-      await AxiosTransactions.createTransaction(description, amount, transactionType);
+      await createTransaction(description, amount, transactionType, date.getMonth()+1, date.getFullYear());
       loadData();
       form.reset();
     } else {
@@ -53,8 +54,8 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
     }
   }
 
-  const deleteTransaction = async(id: number) => {
-    await AxiosTransactions.deleteTransaction(id);
+  const handleDelete = async(id: number) => {
+    await deleteTransaction(id);
     loadData();
   }
 
@@ -68,7 +69,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
       <div>
         <form 
           className="flex gap-4" 
-          onSubmit={createTransaction}
+          onSubmit={handleSubmit}
         >
           <Autocomplete
             items={typeList ?? []}
@@ -92,7 +93,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
         {formError && <p className="text-small text-danger mt-3">{formError}</p>}
       </div>
     );
-  }, [typeList, formError])
+  }, [typeList, formError, date])
 
   return (
     <>
@@ -122,7 +123,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
                     </span>
                   </Tooltip>
                   <Tooltip color="danger" content="Delete">
-                    <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => deleteTransaction(item.id)}>
+                    <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(item.id)}>
                       <DeleteIcon />
                     </span>
                   </Tooltip>
@@ -133,8 +134,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData, se
         </TableBody>
       </Table>
       
-      <EditTransactionModal 
-        setLoading={setLoading} 
+      <EditTransactionModal
         onOpenChange={onOpenChange} 
         loadData={loadData}
         transactionToEdit={transactionToEdit!}

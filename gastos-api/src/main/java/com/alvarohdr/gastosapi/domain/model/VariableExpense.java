@@ -4,6 +4,7 @@ import com.alvarohdr.gastosapi.domain.model.visitor.TransactionVisitor;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "VARIABLE_EXPENSES")
@@ -23,9 +24,11 @@ public class VariableExpense extends Transaction{
     public VariableExpense(long id,
                            User user,
                            int amount,
-                           LocalDate creationDate,
+                           short month,
+                           int year,
+                           LocalDateTime creationDate,
                            VariableExpenseType type) {
-        super(id, user, amount, creationDate);
+        super(id, user, amount, month, year, creationDate);
         this.type = type;
     }
 

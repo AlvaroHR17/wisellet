@@ -14,9 +14,7 @@ import com.alvarohdr.gastosapi.domain.model.enums.EnumTransactionTypes;
 import com.alvarohdr.gastosapi.domain.model.visitor.impl.TransactionTypeVisitor;
 import com.alvarohdr.gastosapi.domain.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,10 +38,11 @@ public class ShowTransactionsController {
         this.variableExpenseFactory = variableExpenseFactory;
     }
 
-    @GetMapping
-    public ShowTransactionsReferenceData list() {
+    @GetMapping("/{month}/{year}")
+    public ShowTransactionsReferenceData list(@PathVariable short month, @PathVariable int year) {
+        // TODO: maybe list all the transactions of a year and filter in the front end to avoid too much calls to API
         TransactionTypeVisitor visitor = new TransactionTypeVisitor();
-        List<Transaction> transactions = transactionService.listTransactionsByUser();
+        List<Transaction> transactions = transactionService.listTransactionsInMonth(month, year);
 
         List<IncomeDto> incomes = transactions.stream()
                 .filter(transaction -> transaction.accept(visitor).equals(EnumTransactionTypes.INCOME))

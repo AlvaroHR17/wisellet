@@ -6,13 +6,14 @@ import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.model.VariableExpense;
 import com.alvarohdr.gastosapi.domain.model.VariableExpenseType;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
+import com.alvarohdr.gastosapi.story.createtransaction.CreateTransactionCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -32,7 +33,7 @@ public class CreateVariableExpenseController {
     }
 
     @PostMapping
-    public void create(@RequestBody CreateVariableExpenseCommand command) {
+    public void create(@RequestBody CreateTransactionCommand command) {
         User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
 
         Optional<VariableExpenseType> optionalVariableExpenseType = variableExpenseTypeDao.findByDescription(command.getName());
@@ -49,9 +50,11 @@ public class CreateVariableExpenseController {
 
         VariableExpense variableExpense = new VariableExpense();
         variableExpense.setUser(user);
-        variableExpense.setCreationDate(LocalDate.now());
+        variableExpense.setCreationDate(LocalDateTime.now());
         variableExpense.setType(variableExpenseType);
         variableExpense.setAmount(command.getAmount());
+        variableExpense.setMonth(command.getMonth());
+        variableExpense.setYear(command.getYear());
         variableExpenseDao.saveOrUpdate(variableExpense);
     }
 }

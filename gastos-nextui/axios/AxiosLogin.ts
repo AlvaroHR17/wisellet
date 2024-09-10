@@ -25,16 +25,14 @@ export const postLoginToken = async (idToken: string): Promise<boolean> => {
   const path = '/v1/oauth/login';
 
   try {
-    const response = await fetch(`${API_URL}${path}`, {
-      method: 'POST',
-      credentials: 'include',
+    const response = await axios.post(`${API_URL}${path}`, idToken, {
+      withCredentials: true,
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(idToken),
     });
-    if (!response.ok) throw new Error('bad server condition');
+    if (response.status !== 200) throw new Error('bad server condition');
     return true;
   } catch (e) {
     if(e instanceof Error) console.error('postLoginToken Error: ', e.message);
@@ -42,3 +40,22 @@ export const postLoginToken = async (idToken: string): Promise<boolean> => {
     return false;
   }
 };
+
+export const invalidateToken = async() => {
+  const API_URL = 'http://localhost:8080';
+  const path = '/v2/oauth/logout';
+
+  try {
+    const response = await axios.get(`${API_URL}${path}`, {
+      withCredentials: true,
+      headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+      }
+    });
+    if (response.status !== 200) throw new Error('bad server condition');
+  } catch (e:any) {
+    console.error('Logout Error: ', e.message);
+  }
+
+}

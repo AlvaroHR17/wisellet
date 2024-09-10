@@ -6,6 +6,7 @@ import com.alvarohdr.gastosapi.domain.model.Income;
 import com.alvarohdr.gastosapi.domain.model.IncomeType;
 import com.alvarohdr.gastosapi.domain.model.User;
 import com.alvarohdr.gastosapi.domain.service.impl.UserService;
+import com.alvarohdr.gastosapi.story.createtransaction.CreateTransactionCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -31,7 +32,7 @@ public class CreateIncomeController {
     }
 
     @PostMapping
-    public void create(@RequestBody CreateIncomeCommand command) {
+    public void create(@RequestBody CreateTransactionCommand command) {
         // TODO: Create createTransactionRouting which redirects to each type of transaction using a visitor
         User user = userService.getCurrentUser().orElseThrow(() -> new RuntimeException("Unauthorized access: Authentication is required to access this resource"));
 
@@ -52,9 +53,11 @@ public class CreateIncomeController {
 
         Income income = new Income();
         income.setUser(user);
-        income.setCreationDate(LocalDate.now());
+        income.setCreationDate(LocalDateTime.now());
         income.setType(incomeType);
         income.setAmount(command.getAmount());
+        income.setMonth(command.getMonth());
+        income.setYear(command.getYear());
         incomeDao.saveOrUpdate(income);
     }
 }
