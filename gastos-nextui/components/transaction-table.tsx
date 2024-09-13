@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { DeleteIcon } from "@/icons/DeleteIcon";
 import { EditIcon } from "@/icons/EditIcon";
 import { TransactionTypes } from "@/types/enums/TransactionTypes";
@@ -25,6 +25,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData} : 
   const [formError, setFormError] = useState("");
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [transactionToEdit, setTransactionToEdit] = useState<Transaction>();
+  const [total, setTotal] = useState(0);
 
   const topContent = useMemo(() => {
     return (
@@ -64,6 +65,11 @@ export function TransactionTable ({transactionType, list, typeList, loadData} : 
     onOpen();
   }
 
+  useEffect(() => {
+    const transactionsSum = list.map(transaction => transaction.amount).reduce((acumulator, currentValue) => acumulator + currentValue, 0);
+    setTotal(transactionsSum);
+  }, [list])
+
   const bottomContent = useMemo(() => {
     return (
       <div>
@@ -96,7 +102,7 @@ export function TransactionTable ({transactionType, list, typeList, loadData} : 
   }, [typeList, formError, date])
 
   return (
-    <>
+    <div className="flex flex-col items-end">
       <Table 
           aria-label={transactionType} 
           topContent={topContent}
@@ -133,6 +139,10 @@ export function TransactionTable ({transactionType, list, typeList, loadData} : 
           )}
         </TableBody>
       </Table>
+
+      <p className="mt-3">
+        Total {transactionType}: <strong>{total}</strong>
+      </p>
       
       <EditTransactionModal
         onOpenChange={onOpenChange} 
@@ -140,6 +150,6 @@ export function TransactionTable ({transactionType, list, typeList, loadData} : 
         transactionToEdit={transactionToEdit!}
         isOpen={isOpen}
         typeList={typeList}/>
-    </>
+    </div>
   )
 }

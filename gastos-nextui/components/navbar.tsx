@@ -25,7 +25,7 @@ import {
   SearchIcon,
   Logo,
 } from "@/components/icons";
-import { DateSelector } from "./date-selector";
+import { YearSelector } from "./year-selector";
 
 export interface Props {
   logout: (() => void)
@@ -56,7 +56,7 @@ export const Navbar = ({logout} : Props) => {
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
       <NavbarContent>
-        <DateSelector/>
+        <YearSelector/>
       </NavbarContent>
       {/* <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand as="li" className="gap-3 max-w-fit">
